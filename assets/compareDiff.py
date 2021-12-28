@@ -23,7 +23,11 @@ def getRecursiveChildsJson(childNodes):
 
         elementNLevel = len(pathN.split(".")) - glob_level_slice
 
-        levelNJson = {"tagName": child.name, "attrs": child.attrs, "level": elementNLevel, "childs": []}
+        if str(child.attrs).__eq__('{}'):
+            levelNJson = {"tagName": child.name, "attrs": child.attrs, "level": elementNLevel, "childs": []}
+
+        else:
+            levelNJson = {"tagName": child.name+"["+str(child.attrs)+"]", "attrs": child.attrs, "level": elementNLevel, "childs": []}
 
         subChildNodes = child.find_all(recursive=False)
 
@@ -75,7 +79,11 @@ def generateJsonData(contents, fileType, outputJsonFile, outputJsFile, isMasterF
         if elementLevel == 1:
             # print("recursive child list")
 
-            levelOneJson = {"tagName": elem.name, "attrs": elem.attrs, "level": elementLevel, "childs": []}
+            if str(elem.attrs).__eq__('{}'):
+                levelOneJson = {"tagName": elem.name, "attrs": elem.attrs, "level": elementLevel, "childs": []}
+
+            else:
+                levelOneJson = {"tagName": elem.name+"["+str(elem.attrs)+"]", "attrs": elem.attrs, "level": elementLevel, "childs": []}
 
             childNodes = elem.find_all(recursive=False)
 

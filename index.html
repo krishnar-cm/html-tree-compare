@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>Document Compare</title>
     <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" /> -->
     <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.1/jquery.min.js"></script> -->
     <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script> -->
@@ -39,6 +39,11 @@
     <script src="./assets/codemirror/addon/merge/merge.js"></script>
   </head>
   <style>
+  body
+  {
+	margin: 2em;
+	background-color: 
+  }
     #html1 {
       border: 2px dotted black;
     }
@@ -51,6 +56,7 @@
     }
     .CodeMirror {
       line-height: 1.2;
+	  
     }
     @media screen and (min-width: 1300px) {
       article {
@@ -79,6 +85,42 @@
     .errorAddHighLight {
       background-color: cornsilk;
     }
+	.ztree
+	{
+		margin: 2em;
+		background-color: #F3FBF1;
+		
+	}
+	h4
+	{
+		margin-top: 2em;
+		color: #24B405;
+	}
+	.label
+	{
+		margin-top: 2em;
+		margin-bottom: 1em;
+	}
+	.loader {
+	margin-top: 16px;
+  border: 5px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 5px solid #3498db;
+  width: 70px;
+  height: 70px;
+  -webkit-animation: spin 2s linear infinite; /* Safari */
+  animation: spin 2s linear infinite;
+  align: center;
+}
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
   </style>
   <body>
     <!-- <div id="html1">
@@ -101,58 +143,66 @@
     </div> -->
     <!-- <div id="tree"></div> -->
 
-    <div class="container mt-5">
-      <label class="">Select python version present on Win/Mac system</label>
+    <div class="mt-5">
+      <div class="label">
+	<label>Select python version present on Win/Mac system</label>
       <select id="pySelect" class="form-select" aria-label="Default select example">
         <option value="python">python</option>
         <option value="python3">python3</option>
       </select>
-      <div class="text-center mb-5">
-        <button id="loadnewwindow" class="btn btn-primary">Compare</button>
       </div>
+      <div class="text-left">
+        <button id="loadnewwindow" class="btn btn-primary">Compare</button>
+      <div class="text-center loader"></div>
 
-      <div class="text-center mb-5" id="perc">
+      </div>
+      <div class="text-left mb-5 label" id="perc">
         <p>
-          File A compared with File B is similarity <strong><span>20</span>%</strong>
+          Similarity score between File A & File B: <strong><span style="color:red;">20</span>%</strong>
         </p>
       </div>
 
       <div class="row">
         <div class="column col-6">
           <h4>Input File A</h4>
-          <textarea id="inputcode1" cols="30" rows="10"></textarea>
-          <h4>File A Structure</h4>
+          <textarea id="inputcode1" cols="30" rows="10">Paste HTML/XML document content</textarea>
+          <div class="treecompare">
+          <h4>File A Tree Structure</h4>
 
           <div class="form-group range-sld">
-            <label for="formControlRange">Document levels</label>
+            <h5><label for="formControlRange">Levels: </label>
+            <span style="color:red;" id="rangePrimary">2</span></h5>
             <input type="range" class="form-control-range" id="formControlRange" min="0" max="2" value="2" />
-            <span id="rangePrimary">2</span>
-          </div>
-          <h3>Tree structure</h3>
+            </div>
           <ul id="treeDemo" class="ztree"></ul>
+        </div>
+
         </div>
 
         <div class="column col-6">
           <h4>Input File B</h4>
-          <textarea id="inputcode2" cols="30" rows="10"></textarea>
-          <h4>File B Structure</h4>
+          <textarea id="inputcode2" cols="30" rows="10">Paste HTML/XML document content</textarea>
+          <div class="treecompare">
+		<h4>File B Tree Structure</h4>
 
           <div class="form-group range-sld">
-            <label for="formControlRange1">Document levels</label>
+            <h5><label for="formControlRange1">Levels: </label>
+            <span style="color:red;" id="rangePrimary1">2</span></h5>
             <input type="range" class="form-control-range" id="formControlRange1" min="0" max="2" value="2" />
-            <span id="rangePrimary1">2</span>
-          </div>
-          <h3>Tree structure</h3>
+            </div>
           <ul id="treeDemo1" class="ztree"></ul>
         </div>
 
         
-          <h3>Document structure</h3>
+          </div>
+          <div class="doccompare">
+          <h4>Document Comparison: File A and File B</h4>
           <div id="view" class="mt-md-5"></div>
         
         
       </div>
     </div>
+  </div>
   </body>
   <!-- <script type="text/javascript" src="./assets/dataA.js"></script> -->
   <!-- <script type="text/javascript" src="./assets/dataB.js"></script> -->
@@ -194,7 +244,31 @@
       highlight = true,
       connect = "align",
       collapse = false;
+	  
+	  function parseXml(xml) {
+   var dom = null;
+   if (window.DOMParser) {
+      try { 
+         dom = (new DOMParser()).parseFromString(xml, "text/xml"); 
+      } 
+      catch (e) { dom = null; }
+   }
+   else if (window.ActiveXObject) {
+      try {
+         dom = new ActiveXObject('Microsoft.XMLDOM');
+         dom.async = false;
+         if (!dom.loadXML(xml)) // parse error ..
+            window.alert(dom.parseError.reason + dom.parseError.srcText);
+      } 
+      catch (e) { dom = null; }
+   }
+   else
+      alert("oops");
+   return dom;
+}
+
     function initUI() {
+
       if (value == null) return;
       var target = document.getElementById("view");
       target.innerHTML = "";
@@ -208,11 +282,14 @@
         connect: connect,
         collapseIdentical: collapse,
       });
-    }
 
+    }
     const btnclick = document.getElementById("loadnewwindow");
 
     btnclick.addEventListener("click", function () {
+		      
+		//$(".loader").show();
+
       console.log("click btn");
 
       let input1Data = $("#inputcode1").val();
@@ -242,7 +319,11 @@
 
         $("#perc span").html(percentageSim.toFixed(2));
 
-        $("#perc").show();
+//$(".loader").hide();
+                $("#perc").show();
+      $(".treecompare").show();
+        $(".doccompare").show();
+		
       } else {
         alert("Contents are empty for File A and B");
       }
@@ -470,6 +551,11 @@
     $(document).ready(function () {
       $("#view").hide();
       $("#perc").hide();
+    $(".treecompare").hide();
+      $(".doccompare").hide();
+      $(".loader").hide();
+	  
+	  
     });
   </script>
 </html>
