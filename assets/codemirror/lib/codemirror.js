@@ -7780,7 +7780,7 @@
     option("extraKeys", null);
     option("configureMouse", null);
 
-    option("lineWrapping", true, wrappingChanged, true);
+    option("lineWrapping", false, wrappingChanged, true);
     option("gutters", [], function (cm, val) {
       cm.display.gutterSpecs = getGutters(val, cm.options.lineNumbers);
       updateGutters(cm);
